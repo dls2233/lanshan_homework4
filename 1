@@ -1,0 +1,59 @@
+//查询
+1.取得每个部门最高新水的人员名称
+SELECT e.ename FROM emp e
+JOIN (SELECT deptno,MAX(sal) AS maxsal FROM emp GROUP BY deptno) t
+ON t.deptno=e.deptno and t.maxsal=e.sal;
+
+2.薪水在部门平均薪水之上的员工信息
+SELECT e.* FROM emp e JOIN (SELECT deptno,AVG(sal) AS avgsal FROM emp GROUP BY deptno) t ON e.deptno=t.deptno and e.sal>=t.avgsal;
+
+3.取得部门中(所有人的)平均的薪水等级   意思是等级求平均值
+SELECT t.deptno,s.grade FROM salgrade s JOIN (SELECT deptno,AVG(sal) AS avgsal FROM emp GROUP BY deptno) t ON avgsal>=s.losal AND avgsal<=s.hisal;
+
+4.不用max，查出最高薪水
+SELCET sal AS maxsal FROM emp ORDER BY sal DESC LIMIT 1;
+
+5.取得平均薪水最高的部门的部门信息
+SELCET d.* FROM dept d JOIN (SELECT avg(sal) AS avgsal FROM emp GROUP BY avgsal DESC) e ON LIMIT 1;
+
+7.求平均薪水等级最低的部门信息
+CREATE VIEW view_salgrade AS SELECT t.deptno,s.grade FROM salgrade s JOIN (SELECT deptno,AVG(sal) AS avgsal FROM emp GROUP BY deptno) t ON avgsal>=s.losal AND avgsal<=s.hisal
+SELECT deptno FROM view_salgrade v ORDER BY grade LIMIT 1
+SELECT * FROM salgrade s where s.deptno=v.deptno; 
+
+8.取得比普通员工(员工代码没有在mgr字段上出现的)的最高薪水还要高的领导人姓名
+//没看懂题目
+
+9.取得薪水最高的五名员工
+SELECT * FROM emp GROUP BY sal DESC LIMIT 5;
+
+10.取得薪水最高的六到十名员工
+SELECT * FROM emp GROUP BY sal DESC LIMIT 5,5;
+
+11.取得最后入职的五名员工
+SELECT * FROM emp GROUP BY hirdate DESC LIMIT 0,5;
+
+12.取得每个薪水等级有多少员工
+SELECT s.grade,COUNT(s.grade) FROM emp e JOIN salgrade s ON e.sal>=s.losal AND e.sal<=s.hisal GROUP BY grade;
+
+14.列出所有员工及其领导人的姓名
+//不会找领导人
+
+15.列出受雇日期早于其直接上级的所有员工的编号，姓名，部门名称
+//不会找领导人
+
+16.列出部门名称和这些部门的员工信息，同时列出那些没有员工的部门
+SELECT e.*,d.* FROM dept d LEFT JOIN emp e ON d.deptno=e.deptno;
+
+17.列出至少有五个员工的所有部门
+SELECT e.deptno,COUNT(*),d.dname FROM emp e JOIN dept d ON e.deptno=d.deptno GROUP BY deptno HAVING COUNT(*)>=5;
+
+18.查出所有薪资高于史密斯的员工信息
+SELCT * FROM emp WHERE sal>(SELECT sal FROM emp WHERE ename='SMITH');
+
+19.列出所有的job为clerk的员工信息,部门名称及部门人数
+CREATE VIEW num_deptno BY SELECT e.deptno,COUNT(*),d.dname FROM emp e JOIN dept d ON e.deptno=d.deptno GROUP BY deptno;
+SELEC e.*,v.* FROM emp e,view_deptno v where e.dname='clerk' AND v.dname='CLERK';
+
+20.列出最低薪金大于1500的各种工作及其从事此工作的全部雇员人数
+SELECT e.* FROM emp e JOIN (SELCET job FROM emp GROUP BY job HAVING MIN(sal)>1500) t ON e.job=t.job;
